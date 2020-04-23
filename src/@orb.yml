@@ -1,0 +1,4 @@
+version: 2.1
+
+description: |
+  "Execute ansible-playbook command. See details at https://github.com/circleci-orbs-tm/ansible-playbook"

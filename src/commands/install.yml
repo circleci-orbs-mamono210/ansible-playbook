@@ -1,0 +1,33 @@
+  description: |
+    Install Ansible
+
+  parameters:
+    version:
+      description: |
+        Ansible version
+      type: string
+      default: ''
+
+  steps:
+    - run:
+        name: Install Ansible
+        command: |
+          export PIP=$(which pip pip3 | head -1)
+          if [[ -n $PIP ]]; then
+            if which sudo > /dev/null; then
+              if [ -n "<<parameters.version>>" ]; then
+                sudo $PIP install ansible==<<parameters.version>> --upgrade
+              else
+                sudo $PIP install ansible --upgrade
+              fi
+            else
+              if [ -n "<<parameters.version>>" ]; then
+                $PIP install ansible==<<parameters.version>> --upgrade --user
+              else
+                $PIP install ansible --upgrade --user
+              fi
+            fi
+          else
+            echo "Unable to install Ansible. Please install pip."
+            exit 1
+          fi

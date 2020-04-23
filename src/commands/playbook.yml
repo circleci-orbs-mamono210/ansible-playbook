@@ -1,0 +1,111 @@
+  description: |
+    Execute ansible-playbook command
+
+  parameters:
+    inventory:
+      description: |
+        Ansible inventory file. The default value must be empty,
+        so do not register a value with a variable with this name.
+        The data must be registered in base64 format
+      type: env_var_name
+      default: NONEXISTENT_ANSIBLE_INVENTORY
+
+    inventory-parameters:
+      description: |
+        Ansible inventory parameters
+      type: string
+      default: ''
+
+    playbook:
+      description: |
+        The path of Ansible playbook
+      type: string
+
+    playbook-options:
+      description: |
+        Ansible-playbook command options
+      type: string
+      default: ''
+
+    private-key:
+      description: |
+        SSH private key file. The default value must be empty,
+        so do not register a value with a variable with this name.
+        The data must be registered in base64 format
+      type: env_var_name
+      default: NONEXISTENT_ANSIBLE_SSH_KEY
+
+  steps:
+    - run:
+        name: Set invetory
+        command: |
+          if [ -n "`echo $<<parameters.inventory>>`" ]; then
+            if [ ! -d ".ansible-playbook-circleci" ]; then
+              mkdir .ansible-playbook-circleci
+            fi
+            echo $<<parameters.inventory>> | base64 -d > .ansible-playbook-circleci/inventory-file
+            echo "-i .ansible-playbook-circleci/inventory-file" > .ansible-playbook-circleci/inventory
+          else
+            if [ ! -d ".ansible-playbook-circleci" ]; then
+              mkdir .ansible-playbook-circleci
+            fi
+            touch .ansible-playbook-circleci/inventory
+          fi
+
+    - run:
+        name: Set inventory parameters
+        command: |
+          if [ -n "<<parameters.inventory-parameters>>" ]; then
+            if [ ! -d ".ansible-playbook-circleci" ]; then
+              mkdir .ansible-playbook-circleci
+            fi
+            echo "<<parameters.inventory-parameters>>" > .ansible-playbook-circleci/inventory-parameters
+          else
+            if [ ! -d ".ansible-playbook-circleci" ]; then
+              mkdir .ansible-playbook-circleci
+            fi
+            touch .ansible-playbook-circleci/inventory-parameters
+          fi
+
+    - run:
+        name: Set command options
+        command: |
+          if [ -n  "<<parameters.playbook-options>>" ]; then
+            if [ ! -d ".ansible-playbook-circleci" ]; then
+              mkdir .ansible-playbook-circleci
+            fi
+            echo <<parameters.playbook-options>> > .ansible-playbook-circleci/playbook-options
+          else
+            if [ ! -d ".ansible-playbook-circleci" ]; then
+              mkdir .ansible-playbook-circleci
+            fi
+            touch .ansible-playbook-circleci/playbook-options
+          fi
+
+    - run:
+        name: Set private key
+        command: |
+          if [ -n "$<<parameters.private-key>>" ]; then
+            if [ ! -d ".ansible-playbook-circleci" ]; then
+              mkdir .ansible-playbook-circleci
+            fi
+            echo $<<parameters.private-key>> | base64 -d > .ansible-playbook-circleci/private-key
+            chmod 700 .ansible-playbook-circleci
+            chmod 600 .ansible-playbook-circleci/private-key
+            echo '--private-key .ansible-playbook-circleci/private-key' > .ansible-playbook-circleci/private-key-params
+          else
+            if [ ! -d ".ansible-playbook-circleci" ]; then
+              mkdir .ansible-playbook-circleci
+            fi
+            touch .ansible-playbook-circleci/private-key-params
+          fi
+
+    - run:
+        name: Execute
+        command: |
+          # Execute ansible-playbook command
+          ansible-playbook `cat .ansible-playbook-circleci/inventory` \
+          `cat .ansible-playbook-circleci/inventory-parameters` \
+          `cat .ansible-playbook-circleci/private-key-params` \
+          `cat .ansible-playbook-circleci/playbook-options` \
+          <<parameters.playbook>>

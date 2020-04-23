@@ -1,0 +1,54 @@
+  description: |
+    Execute ansible-galaxy install command
+
+  parameters:
+    galaxy-options:
+      description: |
+        ansible-galaxy command options
+      type: string
+      default: ''
+
+    galaxy-requirements-file:
+      description: |
+        Ansible Galaxy requirements file path
+      type: string
+      default: ''
+
+    galaxy-roles-path:
+      description: |
+        ansible-galaxy command roles-path option
+      type: string
+      default: ''
+
+  steps:
+    - run:
+        name: Set Ansible galaxy role path option
+        command: |
+          if [ -n  "<<parameters.galaxy-roles-path>>" ]; then
+            if [ ! -d ".ansible-galaxy-circleci" ]; then
+              mkdir .ansible-galaxy-circleci
+            fi
+            echo "-p <<parameters.galaxy-roles-path>>" > .ansible-galaxy-circleci/roles-path
+          else
+            if [ ! -d ".ansible-galaxy-circleci" ]; then
+              mkdir .ansible-galaxy-circleci
+            fi
+            touch .ansible-galaxy-circleci/roles-path
+          fi
+
+    - run:
+        name: Install Ansible galaxy roles
+        command: |
+          if [ -n "<<parameters.galaxy-requirements-file>>" ]; then
+            if [ ! -n "<<parameters.galaxy-options>>" ]; then
+              ansible-galaxy install -r <<parameters.galaxy-requirements-file>> `cat .ansible-galaxy-circleci/roles-path`
+            else
+              echo "pamareter 'galaxy-options' and 'galaxy-role-path' cannot be specified at the same time."
+            fi
+          else
+            if [ -n "<<parameters.galaxy-options>>" ]; then
+              ansible-galaxy install <<parameters.galaxy-options>> `cat .ansible-galaxy-circleci/roles-path`
+            else
+              echo "No galaxy roles to be installed found"
+            fi
+          fi
