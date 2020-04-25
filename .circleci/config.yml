@@ -95,6 +95,28 @@ executors:
       - image: circleci/python
 
 jobs:
+  ansible-install-test:
+    executor: python
+    parameters:
+      version:
+        description: |
+          Ansible version
+        type: string
+        default: ''
+
+    steps:
+      - ansible/install:
+          version: <<parameters.version>>
+      - run:
+          name: Check if specfic version of Ansible is installed
+          command: |
+            ansible --version
+            if [ <<parameters.version>> == `ansible --version | sed -n 1p | awk '{print $2}'` ]; then
+              echo "Ansible version <<parameters.version>> is installed"
+            else
+              echo "Ansible version <<parameters.version>> is not installed"
+            fi
+
   inventory-test:
     executor: python
     <<: *parameters-alias
@@ -130,6 +152,9 @@ workflows:
 #          requires:
 #            - orb-tools/pack
 #
+      - ansible-install-test:
+          version: 2.6.5
+
       - inventory-test:
           galaxy-requirements-file: tests/requirements.yml
           inventory: ANSIBLE_INVENTORY
@@ -139,7 +164,7 @@ workflows:
 
       - inventory-parameter-test:
           galaxy-options: geerlingguy.packer
-          inventory-parameters: -i 3.112.195.22, -u centos
+          inventory-parameters: -i 34.97.22.246, -u tomonori
           playbook: tests/packer.yml
           private-key: ANSIBLE_SSH_KEY
 
