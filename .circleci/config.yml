@@ -87,7 +87,7 @@ version: 2.1
 
 orbs:
   orb-tools: circleci/orb-tools@8.20.0
-  ansible: orbss/ansible-playbook@0.0.4
+  ansible: orbss/ansible-playbook@0.0.5
 
 executors:
   python:
@@ -164,7 +164,7 @@ workflows:
 
       - inventory-parameter-test:
           galaxy-options: geerlingguy.packer
-          inventory-parameters: -i 34.97.22.246, -u tomonori
+          inventory-parameters: -i 3.112.129.65, -u centos
           playbook: tests/packer.yml
           private-key: ANSIBLE_SSH_KEY
 

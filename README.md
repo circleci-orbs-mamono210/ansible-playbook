@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/circleci-orbs-tm/ansible-playbook.svg?style=svg)](https://circleci.com/gh/circleci-orbs-tm/ansible-playbook)
+[![CircleCI Orb Version](https://img.shields.io/badge/endpoint.svg?url=https://badges.circleci.io/orb/orbss/ansible-playbook)](https://circleci.com/orbs/registry/orb/orbss/ansible-playbook)
 [![](https://github.com/circleci-orbs-tm/ansible-playbook/workflows/Trailing%20whitespace/badge.svg)](https://github.com/circleci-orbs-tm/ansible-playbook/actions?query=workflow%3A%22Trailing+whitespace%22)
 
 # orbss/ansible-playbook
